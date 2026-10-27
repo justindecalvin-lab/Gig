@@ -876,6 +876,7 @@ async function startServer() {
   const CHAT_CHANNELS_FILE = path.join(DATA_DIR, "chat_channels.json");
   const CHAT_MESSAGES_FILE = path.join(DATA_DIR, "chat_messages.json");
   const ASSESSMENT_CONFIG_FILE = path.join(DATA_DIR, "assessment_config.json");
+  const THEME_FILE = path.join(DATA_DIR, "theme.json");
 
   // SSE Real-time client connections for cross-device live push
   const sseClients = new Set<express.Response>();
@@ -1565,6 +1566,45 @@ async function startServer() {
     }
   }
 
+  function getOnlineTheme(): string {
+    ensureDataDir();
+    if (!fs.existsSync(THEME_FILE)) {
+      try {
+        fs.writeFileSync(
+          THEME_FILE,
+          JSON.stringify({ theme: "crimson-gold", updatedAt: new Date().toISOString() }, null, 2),
+          "utf-8"
+        );
+      } catch (e) {
+        console.warn("[Online Storage] Could not write default theme.json", e);
+      }
+      return "crimson-gold";
+    }
+    try {
+      const raw = fs.readFileSync(THEME_FILE, "utf-8");
+      const parsed = JSON.parse(raw);
+      return parsed.theme || "crimson-gold";
+    } catch (e) {
+      console.warn("[Online Storage] Could not parse theme.json, falling back to crimson-gold", e);
+      return "crimson-gold";
+    }
+  }
+
+  function saveOnlineTheme(theme: string): boolean {
+    ensureDataDir();
+    try {
+      fs.writeFileSync(
+        THEME_FILE,
+        JSON.stringify({ theme, updatedAt: new Date().toISOString() }, null, 2),
+        "utf-8"
+      );
+      return true;
+    } catch (e) {
+      console.error("[Online Storage] Could not write to theme.json", e);
+      return false;
+    }
+  }
+
   // Pre-seed and verify files at startup
   ensureDataDir();
   getOnlineStudents();
@@ -1576,6 +1616,33 @@ async function startServer() {
   getOnlineVisitorConversations();
   getOnlineChatMessages();
   getOnlineAssessmentConfig();
+  getOnlineTheme();
+
+  // -------------------------------------------------------------------------
+  // 0A. INSTITUTIONAL THEME & VISUAL STYLE API
+  // -------------------------------------------------------------------------
+  app.get("/api/theme", (_req, res) => {
+    try {
+      const theme = getOnlineTheme();
+      res.json({ success: true, theme });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message, theme: "crimson-gold" });
+    }
+  });
+
+  app.post("/api/theme", (req, res) => {
+    try {
+      const { theme } = req.body || {};
+      const validTheme = ["crimson-gold", "sapphire-collegiate", "emerald-ivy"].includes(theme)
+        ? theme
+        : "crimson-gold";
+      saveOnlineTheme(validTheme);
+      broadcastRealtimeEvent("theme_updated", { theme: validTheme });
+      res.json({ success: true, theme: validTheme });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err?.message });
+    }
+  });
 
   // -------------------------------------------------------------------------
   // 0. ASSESSMENT CONFIG & COLLATED RESULTS DISPATCH API

@@ -479,6 +479,7 @@ export const AdminLandingPageTab: React.FC = () => {
                       keyPillars: true,
                       about: true,
                       programs: true,
+                      enrichmentClubs: true,
                       studentLife: true,
                       gallery: true,
                       faculty: true,
@@ -495,12 +496,12 @@ export const AdminLandingPageTab: React.FC = () => {
                     Object.entries(allTrue).forEach(([k, v]) => {
                       updateLandingSectionVisibility(k as any, v);
                     });
-                    showToast('All 16 landing page sections enabled and synced to Supabase database!');
+                    showToast('All 17 landing page sections enabled and synced to Supabase database!');
                   }}
                   className="px-4 py-2 rounded-xl text-xs font-black bg-stone-900 text-white hover:bg-stone-800 transition-all cursor-pointer shadow-xs flex items-center gap-1.5"
                 >
                   <Check className="w-3.5 h-3.5 text-emerald-400" />
-                  <span>Enable All (16)</span>
+                  <span>Enable All (17)</span>
                 </button>
 
                 <button
@@ -522,7 +523,7 @@ export const AdminLandingPageTab: React.FC = () => {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div className="p-4 rounded-2xl bg-stone-50 border border-stone-200/70">
                 <div className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">Total Modules</div>
-                <div className="text-2xl font-black text-stone-900 mt-1">16</div>
+                <div className="text-2xl font-black text-stone-900 mt-1">17</div>
                 <div className="text-[10px] text-stone-400 mt-0.5">Landing page components</div>
               </div>
 
@@ -534,6 +535,7 @@ export const AdminLandingPageTab: React.FC = () => {
                     landingSections.keyPillars,
                     landingSections.about,
                     landingSections.programs,
+                    landingSections.enrichmentClubs,
                     landingSections.studentLife,
                     landingSections.gallery,
                     landingSections.faculty,
@@ -559,6 +561,7 @@ export const AdminLandingPageTab: React.FC = () => {
                     landingSections.keyPillars,
                     landingSections.about,
                     landingSections.programs,
+                    landingSections.enrichmentClubs,
                     landingSections.studentLife,
                     landingSections.gallery,
                     landingSections.faculty,
@@ -586,7 +589,7 @@ export const AdminLandingPageTab: React.FC = () => {
               </div>
             </div>
 
-            {/* 16 Section Toggles Grid */}
+            {/* Section Toggles Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
               {[
                 {
@@ -614,74 +617,80 @@ export const AdminLandingPageTab: React.FC = () => {
                   description: 'Age-tiered curricula from Early Years / Creche & KG, Primary Basic, Junior Secondary, to Senior Secondary.'
                 },
                 {
+                  key: 'enrichmentClubs',
+                  title: '5. Enrichment & Specialty Clubs',
+                  category: 'Co-Curricular & Specializations',
+                  description: 'Hands-on practical development cards: Robotics & Applied Artificial Intelligence, Speech Diction & Public Oratory, Creative Arts & Design.'
+                },
+                {
                   key: 'studentLife',
-                  title: '5. Student Life, Clubs & Societies',
+                  title: '6. Student Life, Clubs & Societies',
                   category: 'Campus Experience',
                   description: 'Extracurricular clubs: Jet Club, Press Club, Music & Arts, Debating Society, and student leadership roles.'
                 },
                 {
                   key: 'gallery',
-                  title: '6. Campus Facilities & Photo Gallery',
+                  title: '7. Campus Facilities & Photo Gallery',
                   category: 'Visual Showcase',
                   description: 'Category-filtered gallery showing laboratories, library, ICT suites, sports arena, and cultural festivities.'
                 },
                 {
                   key: 'faculty',
-                  title: '7. Distinguished Faculty Team',
+                  title: '8. Distinguished Faculty Team',
                   category: 'Educators & Leaders',
                   description: 'Profiles, qualifications, subject competencies, and mentorship credentials of teaching faculty.'
                 },
                 {
                   key: 'calendar',
-                  title: '8. Academic Calendar & Term Events',
+                  title: '9. Academic Calendar & Term Events',
                   category: 'Schedules & Milestones',
                   description: 'Key academic milestones: resumption dates, mid-term breaks, examinations, sports day, and executive PTA.'
                 },
                 {
                   key: 'newsBlog',
-                  title: '9. School News & Press Club Editorial',
+                  title: '10. School News & Press Club Editorial',
                   category: 'Campus Journalism',
                   description: 'Official student journalism, competition triumphs, press announcements, and campus newsletter articles.'
                 },
                 {
                   key: 'notices',
-                  title: '10. Public Notice Board',
+                  title: '11. Public Notice Board',
                   category: 'Official Bulletins',
                   description: 'Executive memos, term fee schedules, entrance examination announcements, and emergency notices.'
                 },
                 {
                   key: 'testimonials',
-                  title: '11. Parent & Scholar Testimonials',
+                  title: '12. Parent & Scholar Testimonials',
                   category: 'Community Reviews',
                   description: 'Verified parent remarks, scholar satisfaction ratings, and alumni endorsements regarding pastoral care.'
                 },
                 {
                   key: 'achievements',
-                  title: '12. Scholar Laurels & Achievements',
+                  title: '13. Scholar Laurels & Achievements',
                   category: 'Academic Honors',
                   description: 'National olympiad victories, WAEC distinctions, Cowbellpedia trophies, and inter-school academic laurels.'
                 },
                 {
                   key: 'houseChampionship',
-                  title: '13. Inter-House Sports Championship',
+                  title: '14. Inter-House Sports Championship',
                   category: 'House Standings',
                   description: 'Competitive leaderboard for Blue, Green, Yellow, and Red Houses with live points table and mottos.'
                 },
                 {
                   key: 'contributors',
-                  title: '14. Production Credits & Leadership',
+                  title: '15. Production Credits & Leadership',
                   category: 'Credits & Governance',
                   description: 'Official engineering credits, patrons, technological development acknowledgements, and advisory leaders.'
                 },
                 {
                   key: 'contact',
-                  title: '15. Campus Contact & Admissions Desk',
+                  title: '16. Campus Contact & Admissions Desk',
                   category: 'Direct Channels',
                   description: 'Physical campus address in Ibadan, telephone lines, official email, WhatsApp link, and inquiry form.'
                 },
                 {
                   key: 'faq',
-                  title: '16. Frequently Asked Questions (FAQ)',
+                  title: '17. Frequently Asked Questions (FAQ)',
                   category: 'Information & Answers',
                   description: 'Interactive FAQ accordion addressing prospective parent inquiries on fees, curriculum, and admissions.'
                 }

@@ -16,7 +16,7 @@ interface AcademicProgramsProps {
 }
 
 export const AcademicPrograms: React.FC<AcademicProgramsProps> = ({ onOpenAdmissions }) => {
-  const { images, academicPrograms, featuredCourses } = useSchool();
+  const { images, academicPrograms, featuredCourses, landingSections } = useSchool();
   const progs = (academicPrograms && academicPrograms.length > 0) ? academicPrograms : ACADEMIC_PROGRAMS;
   const courses = (featuredCourses && featuredCourses.length > 0) ? featuredCourses : FEATURED_COURSES;
   const [selectedProgram, setSelectedProgram] = useState<AcademicProgram>(progs[1] || progs[0]);
@@ -178,83 +178,85 @@ export const AcademicPrograms: React.FC<AcademicProgramsProps> = ({ onOpenAdmiss
           </div>
         </div>
 
-        {/* Featured Enrichment Programs */}
-        <div>
-          <div className="text-center max-w-2xl mx-auto mb-10">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-red-600 block mb-1">
-              Co-Curricular & Specializations
-            </span>
-            <h3 className="text-2xl sm:text-3xl font-black text-neutral-900">
-              Enrichment & Specialty Clubs
-            </h3>
-            <p className="text-neutral-600 text-xs sm:text-sm mt-1">
-              Hands-on practical development outside the traditional classroom syllabus.
-            </p>
-          </div>
+        {/* Featured Enrichment Programs (Toggleable in Admin Dashboard) */}
+        {landingSections?.enrichmentClubs !== false && (
+          <div>
+            <div className="text-center max-w-2xl mx-auto mb-10">
+              <span className="text-xs font-extrabold uppercase tracking-widest text-red-600 block mb-1">
+                Co-Curricular & Specializations
+              </span>
+              <h3 className="text-2xl sm:text-3xl font-black text-neutral-900">
+                Enrichment & Specialty Clubs
+              </h3>
+              <p className="text-neutral-600 text-xs sm:text-sm mt-1">
+                Hands-on practical development outside the traditional classroom syllabus.
+              </p>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {courses.map((course) => {
-              const courseImg = (course.imageKey && images[course.imageKey]) || 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80';
-              return (
-                <div
-                  key={course.id}
-                  className="bg-white rounded-3xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 border border-[#EAE2CE] flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="relative h-48 overflow-hidden">
-                      <img
-                        src={courseImg}
-                        alt={course.title}
-                        className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80';
-                        }}
-                      />
-                      <div className="absolute top-3 left-3 px-3 py-1 rounded-md bg-neutral-900/90 text-amber-300 text-xs font-bold backdrop-blur-xs border border-amber-400/30">
-                        {course.grade}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {courses.map((course) => {
+                const courseImg = (course.imageKey && images[course.imageKey]) || 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80';
+                return (
+                  <div
+                    key={course.id}
+                    className="bg-white rounded-3xl overflow-hidden shadow-xs hover:shadow-xl transition-all duration-300 border border-[#EAE2CE] flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="relative h-48 overflow-hidden">
+                        <img
+                          src={courseImg}
+                          alt={course.title}
+                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80';
+                          }}
+                        />
+                        <div className="absolute top-3 left-3 px-3 py-1 rounded-md bg-neutral-900/90 text-amber-300 text-xs font-bold backdrop-blur-xs border border-amber-400/30">
+                          {course.grade}
+                        </div>
+                      </div>
+
+                      <div className="p-6">
+                        <h4 className="text-lg font-bold text-neutral-900 mb-2">
+                          {course.title}
+                        </h4>
+                        <p className="text-xs text-neutral-600 leading-relaxed mb-4">
+                          {course.highlight}
+                        </p>
+
+                        <div className="text-xs text-neutral-500 space-y-1.5 pt-3 border-t border-[#F0EAE0]">
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-neutral-700">Lead Instructor:</span>
+                            <span className="font-bold text-neutral-900">{course.tutor}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="font-semibold text-neutral-700">Participation:</span>
+                            <span className="text-red-700 font-bold">{course.students}</span>
+                          </div>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="p-6">
-                      <h4 className="text-lg font-bold text-neutral-900 mb-2">
-                        {course.title}
-                      </h4>
-                      <p className="text-xs text-neutral-600 leading-relaxed mb-4">
-                        {course.highlight}
-                      </p>
-
-                      <div className="text-xs text-neutral-500 space-y-1.5 pt-3 border-t border-[#F0EAE0]">
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-neutral-700">Lead Instructor:</span>
-                          <span className="font-bold text-neutral-900">{course.tutor}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-neutral-700">Participation:</span>
-                          <span className="text-red-700 font-bold">{course.students}</span>
-                        </div>
-                      </div>
+                    <div className="p-4 bg-[#FAF7EE] border-t border-[#EAE2CE] flex items-center justify-between">
+                      <span className="text-xs font-medium text-neutral-500 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" />
+                        {course.duration}
+                      </span>
+                      <button
+                        onClick={onOpenAdmissions}
+                        className="text-xs font-bold text-red-700 hover:text-red-800 flex items-center gap-1 cursor-pointer"
+                      >
+                        <span>Inquire</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   </div>
-
-                  <div className="p-4 bg-[#FAF7EE] border-t border-[#EAE2CE] flex items-center justify-between">
-                    <span className="text-xs font-medium text-neutral-500 flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      {course.duration}
-                    </span>
-                    <button
-                      onClick={onOpenAdmissions}
-                      className="text-xs font-bold text-red-700 hover:text-red-800 flex items-center gap-1 cursor-pointer"
-                    >
-                      <span>Inquire</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

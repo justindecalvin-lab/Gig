@@ -43,6 +43,8 @@ import {
   ProprietressDirective,
   AssessmentControlConfig,
   AssessmentEntryPhase,
+  AppTheme,
+  ThemeConfig,
   HistoricalSessionRecord,
   HistoricalTermRecord,
   UserRole,
@@ -177,7 +179,8 @@ import {
   DEFAULT_WAEC_REGISTRATIONS,
   DEFAULT_WAEC_PROMPT_BROADCAST,
   DEFAULT_CUSTOM_RESULTS,
-  DEFAULT_LANDING_SECTIONS
+  DEFAULT_LANDING_SECTIONS,
+  DEFAULT_THEMES
 } from '../data/schoolData';
 
 interface SchoolContextType {
@@ -523,6 +526,11 @@ interface SchoolContextType {
   deleteTermNotes: (term?: string, session?: string) => number;
   exportNotesZip: (term?: string, session?: string) => Promise<{ success: boolean; count: number; filename: string }>;
   incrementNoteDownload: (id: string) => void;
+
+  // 14B. Institutional Visual Themes
+  appTheme: AppTheme;
+  setAppTheme: (theme: AppTheme) => Promise<{ success: boolean; message: string }>;
+  availableThemes: ThemeConfig[];
   
   // 15. Navigation
   activeSection: PageSection;
@@ -909,6 +917,41 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     try {
       localStorage.removeItem('stanbax_school_info');
     } catch {}
+  };
+
+  // 2B. Institutional Visual Themes (3 Unique Styles)
+  const [appTheme, setAppThemeState] = useState<AppTheme>(() => {
+    try {
+      return (localStorage.getItem('stanbax_app_theme') as AppTheme) || 'crimson-gold';
+    } catch {
+      return 'crimson-gold';
+    }
+  });
+
+  const setAppTheme = async (theme: AppTheme): Promise<{ success: boolean; message: string }> => {
+    const validTheme = ['crimson-gold', 'sapphire-collegiate', 'emerald-ivy'].includes(theme) ? theme : 'crimson-gold';
+    setAppThemeState(validTheme);
+    try {
+      localStorage.setItem('stanbax_app_theme', validTheme);
+      document.documentElement.setAttribute('data-theme', validTheme);
+      document.body.setAttribute('data-theme', validTheme);
+    } catch {}
+    broadcastLocalStateChange('stanbax_app_theme', validTheme);
+    void syncStateOnline('stanbax_app_theme', validTheme);
+    try {
+      await fetch('/api/theme', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ theme: validTheme })
+      });
+    } catch (e) {
+      console.warn('[Theme Sync] Local & Supabase synced, server route pending:', e);
+    }
+    const themeName = DEFAULT_THEMES.find(t => t.id === validTheme)?.name || validTheme;
+    return {
+      success: true,
+      message: `Institutional visual theme updated to "${themeName}" and saved across all portals, database, and connected devices!`
+    };
   };
 
   // 2C. Landing Page CMS State & Handlers (Persistent in database & synced online)
@@ -9955,6 +9998,14 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           if (parsed && typeof parsed === 'object') setLandingSections(parsed);
         } catch {}
       }
+      if (e.key === 'stanbax_app_theme' && e.newValue) {
+        const nextTheme = e.newValue.replace(/"/g, '') as AppTheme;
+        if (['crimson-gold', 'sapphire-collegiate', 'emerald-ivy'].includes(nextTheme)) {
+          setAppThemeState(nextTheme);
+          document.documentElement.setAttribute('data-theme', nextTheme);
+          document.body.setAttribute('data-theme', nextTheme);
+        }
+      }
       if (e.key === 'stanbax_parents_list' && e.newValue) {
         try {
           const parsed = JSON.parse(e.newValue);
@@ -10031,6 +10082,12 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setHouseStandings(data);
       } else if (key === 'stanbax_landing_sections' && data && typeof data === 'object') {
         setLandingSections(data as LandingPageSectionsConfig);
+      } else if (key === 'stanbax_app_theme' && typeof data === 'string') {
+        if (['crimson-gold', 'sapphire-collegiate', 'emerald-ivy'].includes(data as any)) {
+          setAppThemeState(data as AppTheme);
+          document.documentElement.setAttribute('data-theme', data);
+          document.body.setAttribute('data-theme', data);
+        }
       } else if (key === 'stanbax_parents_list' && Array.isArray(data)) {
         setParents(data);
       }
@@ -10046,6 +10103,26 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (!localStorage.getItem('stanbax_landing_sections')) {
           localStorage.setItem('stanbax_landing_sections', JSON.stringify(landingSections));
         }
+        if (!localStorage.getItem('stanbax_app_theme')) {
+          localStorage.setItem('stanbax_app_theme', appTheme);
+        }
+        document.documentElement.setAttribute('data-theme', appTheme);
+        document.body.setAttribute('data-theme', appTheme);
+
+        // Hydrate from server database on startup
+        fetch('/api/theme')
+          .then(res => res.json())
+          .then(resData => {
+            if (resData?.success && resData.theme && ['crimson-gold', 'sapphire-collegiate', 'emerald-ivy'].includes(resData.theme)) {
+              setAppThemeState(resData.theme);
+              try {
+                localStorage.setItem('stanbax_app_theme', resData.theme);
+                document.documentElement.setAttribute('data-theme', resData.theme);
+                document.body.setAttribute('data-theme', resData.theme);
+              } catch {}
+            }
+          })
+          .catch(() => {});
         if (!localStorage.getItem('stanbax_parents_list')) {
           localStorage.setItem('stanbax_parents_list', JSON.stringify(parents));
         }
@@ -11260,6 +11337,9 @@ export const SchoolProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         adminSecurityQuestion,
         adminSecurityAnswer,
         updateAdminSecurityQuestion,
+        appTheme,
+        setAppTheme,
+        availableThemes: DEFAULT_THEMES,
         lessonNotes,
         notesFeatureEnabled,
         addLessonNote,

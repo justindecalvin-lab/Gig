@@ -18,7 +18,9 @@ import {
   Globe,
   ExternalLink,
   Copy,
-  Check
+  Check,
+  Palette,
+  Sparkles
 } from '../../RealIcons';
 import { SchoolLogo } from '../../SchoolLogo';
 import { compressImageFile } from '../../../utils/imageUploadHelper';
@@ -26,6 +28,7 @@ import { DEFAULT_IMAGES } from '../../../data/schoolData';
 import { isRemoteEnabled, syncLocalSchoolStateToSupabase } from '../../../lib/supabase';
 import { NetlifyCloudSyncModal } from './NetlifyCloudSyncModal';
 import { OfficialSignaturesDesk } from '../OfficialSignaturesDesk';
+import { AppTheme } from '../../../types';
 import schemaSql from '../../../../supabase/schema.sql?raw';
 
 export const AdminSchoolSettingsTab: React.FC = () => {
@@ -42,8 +45,13 @@ export const AdminSchoolSettingsTab: React.FC = () => {
     startNewTerm,
     attendanceRecords,
     classes,
-    getClassAttendanceSummary
+    getClassAttendanceSummary,
+    appTheme,
+    setAppTheme,
+    availableThemes
   } = useSchool();
+
+  const [applyingThemeId, setApplyingThemeId] = useState<AppTheme | null>(null);
 
   const [formInfo, setFormInfo] = useState({
     name: schoolInfo.name,
@@ -469,10 +477,117 @@ export const AdminSchoolSettingsTab: React.FC = () => {
 
       {/* School Information Form */}
       <form onSubmit={handleSaveGeneralSettings} className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm space-y-6">
-        <h3 className="text-base font-bold text-stone-900 pb-3 border-b border-stone-100 flex items-center gap-2">
-          <Building2 className="w-4 h-4 text-amber-600" />
-          Institutional Profile & Contact Information
-        </h3>
+        {/* Institutional Theme & Visual Styles Card */}
+        <div className="p-5 sm:p-6 bg-gradient-to-br from-stone-900 via-stone-950 to-stone-900 text-white rounded-3xl border border-stone-800 shadow-md space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-800/80">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <Palette className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-black uppercase tracking-wider mb-0.5">
+                  <Sparkles className="w-3 h-3" />
+                  <span>Multi-Platform Theme Engine</span>
+                </div>
+                <h4 className="text-base font-black text-white">
+                  Institutional Visual Theme & Styling
+                </h4>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-stone-400">
+                Active Theme: <strong className="text-amber-400 capitalize">{availableThemes?.find(t => t.id === appTheme)?.name || 'Royal Crimson'}</strong>
+              </span>
+            </div>
+          </div>
+
+          <p className="text-xs text-stone-300 leading-relaxed">
+            Select one of the 3 unique styling themes below. When switched, the theme updates instantly across the <strong>Public Website</strong> and all <strong>7 Role Portals</strong> (Admin, Student, Parent, Tutor, Principal, Accountant, Proprietress), persists to the <code>/api/theme</code> database, and synchronizes across all devices.
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 pt-1">
+            {availableThemes?.map((theme) => {
+              const isCurrent = appTheme === theme.id;
+              const isBusy = applyingThemeId === theme.id;
+
+              return (
+                <div
+                  key={theme.id}
+                  onClick={async () => {
+                    if (isCurrent || isBusy) return;
+                    setApplyingThemeId(theme.id);
+                    try {
+                      const res = await setAppTheme(theme.id);
+                      setStatusMsg(res.message);
+                      setSavedSuccess(true);
+                      setTimeout(() => setSavedSuccess(false), 4000);
+                    } finally {
+                      setApplyingThemeId(null);
+                    }
+                  }}
+                  className={`p-4 rounded-2xl border-2 transition-all cursor-pointer relative flex flex-col justify-between ${
+                    isCurrent
+                      ? 'border-amber-400 bg-stone-800/90 shadow-lg ring-2 ring-amber-400/20'
+                      : 'border-stone-800 bg-stone-900/60 hover:border-stone-700 hover:bg-stone-800/50'
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-stone-800 text-stone-300 border border-stone-700">
+                        {theme.tagline}
+                      </span>
+                      {isCurrent ? (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-black text-amber-400 bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30">
+                          <Check className="w-3 h-3" />
+                          <span>Active</span>
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold text-stone-400">Click to activate</span>
+                      )}
+                    </div>
+
+                    <div className="font-black text-sm text-white">{theme.name}</div>
+                    <p className="text-[11px] text-stone-400 mt-1 leading-snug">{theme.description}</p>
+                  </div>
+
+                  {/* Swatches */}
+                  <div className="mt-4 pt-3 border-t border-stone-800/80">
+                    <div className="flex items-center gap-1.5 mb-3">
+                      <div className="w-5 h-5 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: theme.primaryColor }} title={`Primary: ${theme.primaryColor}`} />
+                      <div className="w-5 h-5 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: theme.secondaryColor }} title={`Secondary: ${theme.secondaryColor}`} />
+                      <div className="w-5 h-5 rounded-full border border-white/20 shadow-xs" style={{ backgroundColor: theme.accentColor }} title={`Accent: ${theme.accentColor}`} />
+                      <div className="w-5 h-5 rounded-full border border-stone-600 shadow-xs" style={{ backgroundColor: theme.bgPreview }} title={`Preview Background: ${theme.bgPreview}`} />
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={isCurrent || isBusy}
+                      className={`w-full py-1.5 px-3 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 ${
+                        isCurrent
+                          ? 'bg-amber-500 text-stone-950 cursor-default'
+                          : 'bg-stone-800 hover:bg-stone-700 text-white cursor-pointer'
+                      }`}
+                    >
+                      {isCurrent ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Current Theme</span>
+                        </>
+                      ) : isBusy ? (
+                        <span>Activating...</span>
+                      ) : (
+                        <>
+                          <Palette className="w-3.5 h-3.5" />
+                          <span>Switch to this Theme</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         {/* School Logo & Branding Card */}
         <div className="p-4 sm:p-5 bg-gradient-to-r from-stone-50 via-amber-50/40 to-stone-50 rounded-2xl border border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-4">

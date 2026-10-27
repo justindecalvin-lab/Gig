@@ -1412,6 +1412,7 @@ export interface LandingPageSectionsConfig {
   keyPillars?: boolean;
   about?: boolean;
   programs?: boolean;
+  enrichmentClubs?: boolean;
   studentLife?: boolean;
   gallery?: boolean;
   faculty?: boolean;
@@ -1574,5 +1575,17 @@ export interface WaecCatalogSubject {
   description: string;
 }
 
+export type AppTheme = 'crimson-gold' | 'sapphire-collegiate' | 'emerald-ivy';
 
-
+export interface ThemeConfig {
+  id: AppTheme;
+  name: string;
+  tagline: string;
+  description: string;
+  primaryColor: string;
+  secondaryColor: string;
+  accentColor: string;
+  bgPreview: string;
+  badge: string;
+  category: string;
+}

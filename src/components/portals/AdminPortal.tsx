@@ -27,7 +27,8 @@ import {
   MessageSquare,
   School as SchoolIcon,
   Camera,
-  Download
+  Download,
+  Palette
 } from '../RealIcons';
 
 import { AdminStudentsAlumniTab } from './admin/AdminStudentsAlumniTab';
@@ -55,6 +56,7 @@ import { FastClassScoreEntry } from './tutor/FastClassScoreEntry';
 import { AdminQuickAddStudentModal } from './admin/AdminQuickAddStudentModal';
 import { AdminFamilyLinkageModal } from './admin/AdminFamilyLinkageModal';
 import { AdminDownloadStudentLoginsModal } from './admin/AdminDownloadStudentLoginsModal';
+import { AdminThemeSwitcherModal } from './admin/AdminThemeSwitcherModal';
 import { SchoolChatSystem } from '../chat/SchoolChatSystem';
 import { SchoolPrefectBadgesModal } from '../chat/ChatLeadershipModals';
 import { NetlifyCloudSyncModal } from './admin/NetlifyCloudSyncModal';
@@ -109,7 +111,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToWebsite }) => 
     activeAdminAccount,
     isSuperAdmin,
     hasAdminPrivilege,
-    adminAccounts
+    adminAccounts,
+    appTheme,
+    availableThemes
   } = useSchool();
 
   const pendingConsultationsCount = consultationRequests.filter(c => c.status === 'Pending').length;
@@ -126,6 +130,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToWebsite }) => 
   const [showFamilyModal, setShowFamilyModal] = useState(false);
   const [showRosterModal, setShowRosterModal] = useState(false);
   const [showDownloadLoginsModal, setShowDownloadLoginsModal] = useState(false);
+  const [showThemeModal, setShowThemeModal] = useState(false);
 
   const handleLogout = () => {
     logoutAdmin();
@@ -297,6 +302,20 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToWebsite }) => 
             <span className="hidden sm:inline">Student Roster</span>
             <span className="text-[10px] font-bold bg-amber-400 text-neutral-950 px-1.5 py-0.2 rounded-full">
               {students.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowThemeModal(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-black text-amber-950 bg-amber-100/90 hover:bg-amber-200 border border-amber-300 rounded-xl transition-all cursor-pointer shadow-2xs"
+            title="Switch Website & Portals Theme (3 Unique Styles)"
+            id="btn-admin-header-theme-switcher"
+          >
+            <Palette className="w-3.5 h-3.5 text-amber-700" />
+            <span className="hidden md:inline">Theme:</span>
+            <span className="font-black text-amber-900 capitalize">
+              {availableThemes?.find(t => t.id === appTheme)?.name.split(' ')[0] || 'Crimson'}
             </span>
           </button>
 
@@ -579,6 +598,17 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToWebsite }) => 
 
                   <button
                     type="button"
+                    onClick={() => setShowThemeModal(true)}
+                    className="p-4 rounded-xl border-2 border-amber-300 bg-amber-50/60 hover:border-amber-600 hover:bg-amber-100/80 text-left transition-all group cursor-pointer"
+                    id="btn-admin-shortcut-theme-switcher"
+                  >
+                    <Palette className="w-5 h-5 text-amber-700 mb-2 group-hover:scale-110 transition-transform" />
+                    <div className="font-bold text-xs text-stone-900">Website & Roles Visual Themes</div>
+                    <div className="text-[11px] text-amber-800 font-bold">3 Unique Styles • All Portals & Database</div>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={() => setActiveTab('landing')}
                     className="p-4 rounded-xl border-2 border-amber-300 bg-amber-50/40 hover:border-amber-500 hover:bg-amber-50 text-left transition-all group"
                   >
@@ -809,6 +839,12 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({ onBackToWebsite }) => 
       <AdminDownloadStudentLoginsModal
         isOpen={showDownloadLoginsModal}
         onClose={() => setShowDownloadLoginsModal(false)}
+      />
+
+      {/* Website & Role Portals Theme Switcher Modal */}
+      <AdminThemeSwitcherModal
+        isOpen={showThemeModal}
+        onClose={() => setShowThemeModal(false)}
       />
     </div>
   );

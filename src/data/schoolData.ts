@@ -42,7 +42,8 @@ import {
   ChatChannel,
   SchoolChatMessage,
   SchoolRepConfig,
-  VisitorConversation
+  VisitorConversation,
+  ThemeConfig
 } from '../types';
 
 export const DEFAULT_IMAGES: AppImages = {
@@ -1976,6 +1977,7 @@ export const DEFAULT_LANDING_SECTIONS = {
   keyPillars: true,
   about: true,
   programs: true,
+  enrichmentClubs: true,
   studentLife: true,
   gallery: true,
   faculty: true,
@@ -2112,6 +2114,41 @@ export const DEFAULT_CUSTOM_RESULTS = [
   },
 ];
 
-
-
-
+export const DEFAULT_THEMES: ThemeConfig[] = [
+  {
+    id: 'crimson-gold',
+    name: 'Royal Crimson & Gold',
+    tagline: 'Traditional Institutional Heritage',
+    description: 'The signature Stanbax institutional uniform aesthetic with deep royal crimson red, stately gold crests, and warm parchment surfaces.',
+    primaryColor: '#991B1B',
+    secondaryColor: '#7F1D1D',
+    accentColor: '#F59E0B',
+    bgPreview: '#FDFBF7',
+    badge: 'Heritage Classic',
+    category: 'Traditional'
+  },
+  {
+    id: 'sapphire-collegiate',
+    name: 'Sapphire Oxford & Sky',
+    tagline: 'Contemporary Ivy & Academic Tech',
+    description: 'A modern university collegiate aesthetic featuring commanding deep Oxford navy blues, vibrant sky cyan accents, and crisp platinum slate.',
+    primaryColor: '#1E3A8A',
+    secondaryColor: '#1D4ED8',
+    accentColor: '#38BDF8',
+    bgPreview: '#F8FAFC',
+    badge: 'Collegiate Modern',
+    category: 'Modern Tech'
+  },
+  {
+    id: 'emerald-ivy',
+    name: 'Emerald Ivy & Bronze',
+    tagline: 'Classical Cambridge Ivy League',
+    description: 'Inspired by classical Ivy League halls and botanical courtyards. Deep forest emerald green harmonized with antique bronze and golden champagne.',
+    primaryColor: '#064E3B',
+    secondaryColor: '#15803D',
+    accentColor: '#D97706',
+    bgPreview: '#F4F7F4',
+    badge: 'Botanical Prestige',
+    category: 'Classical'
+  }
+];
